@@ -1,0 +1,55 @@
+GET http://localhost:5059/games
+
+###
+GET http://localhost:5059/games/1
+
+###
+POST http://localhost:5059/games
+Content-Type: application/json
+
+{
+    "name": "Super Mario Bros. Wonder",
+    "genreId": 3,
+    "price": 59.99,
+    "releaseDate": "2023-10-20"
+}
+
+###
+POST http://localhost:5059/games
+Content-Type: application/json
+
+{
+    "name": "test game",
+    "genreId": 3,
+    "price": 9.99,
+    "releaseDate": "1992-07-15"
+}
+
+###
+PUT http://localhost:5059/games/2
+Content-Type: application/json
+
+{
+    "name": "Street Fighter II Turbo",
+    "genreId": 1,
+    "price": 19.99,
+    "releaseDate": "1992-07-15"
+}
+
+###
+DELETE http://localhost:5059/games/3
+
+###
+GET http://localhost:5059/genres
+
+###
+# Upload image for game id=1 (adjust local file path)
+POST http://localhost:5059/games/1/image
+Content-Type: multipart/form-data; boundary=GameStoreBoundary
+
+--GameStoreBoundary
+Content-Disposition: form-data; name="file"; filename="mario.jpg"
+Content-Type: image/jpeg
+
+< ./mario.jpg
+--GameStoreBoundary--
