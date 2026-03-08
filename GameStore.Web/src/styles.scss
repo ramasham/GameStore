@@ -1,0 +1,24 @@
+:root {
+  --bg-base: #251145;
+  --text-base: #faf6ff;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  min-height: 100%;
+}
+
+body {
+  font-family: 'Avenir Next', 'Segoe UI', 'Trebuchet MS', sans-serif;
+  color: var(--text-base);
+  background:
+    radial-gradient(circle at 12% 10%, rgba(255, 126, 201, 0.22), transparent 38%),
+    radial-gradient(circle at 84% 12%, rgba(194, 126, 255, 0.2), transparent 34%),
+    radial-gradient(circle at 78% 84%, rgba(255, 220, 122, 0.14), transparent 30%),
+    linear-gradient(145deg, #251145 0%, #32175c 52%, #2a134f 100%);
+}

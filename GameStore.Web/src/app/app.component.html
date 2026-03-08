@@ -1,0 +1,185 @@
+<div class="screen-bg">
+  <div class="ambient glow-a"></div>
+  <div class="ambient glow-b"></div>
+
+  <header class="top-nav">
+    <div class="brand">
+      <p class="eyebrow">GameStore</p>
+      <h1>Marketplace</h1>
+    </div>
+
+    <div class="nav-actions">
+      <span class="games-pill">{{ gameCount() }} Games</span>
+      <button type="button" class="icon-pill" (click)="openCartPopup()" aria-label="Open cart" title="Open cart">
+        <svg viewBox="0 0 24 24" class="icon-svg" aria-hidden="true">
+          <circle cx="9" cy="20" r="1.6"></circle>
+          <circle cx="18" cy="20" r="1.6"></circle>
+          <path
+            d="M3 4h2l2.2 10.2a1 1 0 0 0 1 .8h8.8a1 1 0 0 0 1-.8L20.3 8H7.2"
+          ></path>
+        </svg>
+        <b>{{ cartCount() }}</b>
+      </button>
+      <button
+        type="button"
+        class="icon-pill"
+        (click)="openWishlistPopup()"
+        aria-label="Open wishlist"
+        title="Open wishlist"
+      >
+        <svg viewBox="0 0 24 24" class="icon-svg" aria-hidden="true">
+          <path
+            d="M12 20.5s-7-4.2-7-10.1a4.2 4.2 0 0 1 7-3.2 4.2 4.2 0 0 1 7 3.2c0 5.9-7 10.1-7 10.1z"
+          ></path>
+        </svg>
+        <b>{{ wishlistCount() }}</b>
+      </button>
+    </div>
+  </header>
+
+  <section class="search-strip">
+    <div class="search-wrap">
+      <svg viewBox="0 0 24 24" class="search-icon" aria-hidden="true">
+        <circle cx="11" cy="11" r="7"></circle>
+        <path d="m20 20-3.8-3.8"></path>
+      </svg>
+      <input
+        type="search"
+        placeholder="Search games"
+        [value]="query()"
+        (input)="onQueryChange($event)"
+      />
+    </div>
+  </section>
+
+  <main class="store-shell" *ngIf="!isLoading(); else loadingState">
+    <p *ngIf="message()" class="toast">{{ message() }}</p>
+
+    <section class="content-grid">
+      <section class="catalog">
+        <div class="section-head">
+          <h2>Store Catalog</h2>
+        </div>
+
+        <div class="poster-grid" *ngIf="filteredGames().length > 0; else emptyState">
+          <article class="poster-card" *ngFor="let game of filteredGames(); trackBy: trackByGameId">
+            <img class="poster-image" [src]="getCoverImage(game)" [alt]="game.name + ' cover'" loading="lazy" />
+            <h3>{{ game.name }}</h3>
+            <p>
+              {{ game.releaseDate }}
+              <span class="tag">{{ game.genre }}</span>
+            </p>
+            <div class="card-bottom">
+              <strong>{{ game.price | currency }}</strong>
+              <div class="card-actions">
+                <button
+                  type="button"
+                  class="wish icon-btn"
+                  [class.active]="isInWishlist(game.id)"
+                  [attr.aria-label]="isInWishlist(game.id) ? 'Remove from wishlist' : 'Add to wishlist'"
+                  [title]="isInWishlist(game.id) ? 'Remove from wishlist' : 'Add to wishlist'"
+                  (click)="toggleWishlist(game.id)"
+                >
+                  <svg viewBox="0 0 24 24" class="icon-svg heart" aria-hidden="true">
+                    <path
+                      d="M12 20.5s-7-4.2-7-10.1a4.2 4.2 0 0 1 7-3.2 4.2 4.2 0 0 1 7 3.2c0 5.9-7 10.1-7 10.1z"
+                    ></path>
+                  </svg>
+                </button>
+                <button
+                  type="button"
+                  class="buy icon-btn"
+                  aria-label="Add to cart"
+                  title="Add to cart"
+                  (click)="addToCart(game)"
+                >
+                  <svg viewBox="0 0 24 24" class="icon-svg" aria-hidden="true">
+                    <circle cx="9" cy="20" r="1.6"></circle>
+                    <circle cx="18" cy="20" r="1.6"></circle>
+                    <path
+                      d="M3 4h2l2.2 10.2a1 1 0 0 0 1 .8h8.8a1 1 0 0 0 1-.8L20.3 8H7.2"
+                    ></path>
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </article>
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <section class="modal-backdrop" *ngIf="isCartPopupOpen() || isWishlistPopupOpen()" (click)="closePopups()">
+    <div class="modal-wrap" (click)="$event.stopPropagation()">
+      <section class="panel popup-panel" *ngIf="isCartPopupOpen()">
+        <div class="panel-head">
+          <h3>Cart</h3>
+          <div class="popup-head-actions">
+            <button type="button" class="text-btn" *ngIf="cartEntries().length > 0" (click)="clearCart()">Clear</button>
+            <button type="button" class="text-btn" (click)="closePopups()">Close</button>
+          </div>
+        </div>
+
+        <div class="panel-list" *ngIf="cartEntries().length > 0; else emptyCart">
+          <article class="panel-item" *ngFor="let entry of cartEntries(); trackBy: trackByCartEntry">
+            <img [src]="getCoverImage(entry.game)" [alt]="entry.game.name + ' mini cover'" />
+            <div>
+              <h4>{{ entry.game.name }}</h4>
+              <p>{{ entry.lineTotal | currency }} (x{{ entry.quantity }})</p>
+              <div class="qty-actions">
+                <button type="button" (click)="decreaseFromCart(entry.game.id)">-</button>
+                <button type="button" (click)="addToCart(entry.game)">+</button>
+                <button type="button" (click)="removeFromCart(entry.game.id)">Remove</button>
+              </div>
+            </div>
+          </article>
+        </div>
+
+        <div class="panel-foot">
+          <span>Total</span>
+          <strong>{{ cartTotal() | currency }}</strong>
+        </div>
+      </section>
+
+      <section class="panel popup-panel" *ngIf="isWishlistPopupOpen()">
+        <div class="panel-head">
+          <h3>Wishlist</h3>
+          <div class="popup-head-actions">
+            <button type="button" class="text-btn" *ngIf="wishlistGames().length > 0" (click)="clearWishlist()">Clear</button>
+            <button type="button" class="text-btn" (click)="closePopups()">Close</button>
+          </div>
+        </div>
+
+        <div class="panel-list" *ngIf="wishlistGames().length > 0; else emptyWishlist">
+          <article class="panel-item" *ngFor="let game of wishlistGames(); trackBy: trackByGameId">
+            <img [src]="getCoverImage(game)" [alt]="game.name + ' mini cover'" />
+            <div>
+              <h4>{{ game.name }}</h4>
+              <p>{{ game.price | currency }}</p>
+              <div class="qty-actions">
+                <button type="button" (click)="moveWishlistToCart(game)">Move to Cart</button>
+                <button type="button" (click)="removeFromWishlist(game.id)">Remove</button>
+              </div>
+            </div>
+          </article>
+        </div>
+      </section>
+    </div>
+  </section>
+</div>
+
+<ng-template #loadingState>
+  <section class="loading">Loading games...</section>
+</ng-template>
+
+<ng-template #emptyState>
+  <div class="empty-state">No games match your search.</div>
+</ng-template>
+
+<ng-template #emptyCart>
+  <div class="empty-state">Your cart is empty.</div>
+</ng-template>
+
+<ng-template #emptyWishlist>
+  <div class="empty-state">Your wishlist is empty.</div>
+</ng-template>
